@@ -21,7 +21,6 @@ namespace GameProject {
         }
 
         protected override void Initialize() {
-            // TODO: Add your initialization logic here
             Window.AllowUserResizing = true;
 
             IsFixedTimeStep = _settings.IsFixedTimeStep;
@@ -41,7 +40,6 @@ namespace GameProject {
             _s = new SpriteBatch(GraphicsDevice);
             _sb = new ShapeBatch(GraphicsDevice, Content);
 
-            // TODO: use this.Content to load your game content here
             InputHelper.Setup(this);
         }
 
@@ -51,8 +49,6 @@ namespace GameProject {
             }
 
             SaveJson("Settings.json", _settings, SettingsContext.Default.Settings);
-
-            base.UnloadContent();
         }
 
         protected override void Update(GameTime gameTime) {
@@ -68,18 +64,24 @@ namespace GameProject {
                 ToggleBorderless();
             }
 
-            // TODO: Add your update logic here
+            Vector2 target = InputHelper.NewMouse.Position.ToVector2();
+            Vector2 direction = Vector2.Normalize(target - _a);
+            Vector2 next = _a + direction * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (Vector2.Distance(_a, next) < Vector2.Distance(_a, target)) {
+                _a = next;
+            } else {
+                _a = target;
+            }
 
             InputHelper.UpdateCleanup();
-            base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime) {
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(TWColor.Black);
 
-            // TODO: Add your drawing code here
-
-            base.Draw(gameTime);
+            _sb.Begin();
+            _sb.DrawCircle(_a, 20f, TWColor.Purple900, TWColor.Purple100, 3f);
+            _sb.End();
         }
 
         private void ToggleFullscreen() {
@@ -194,5 +196,7 @@ namespace GameProject {
                 new KeyboardCondition(Keys.Enter)
             );
         ICondition _toggleBorderless = new KeyboardCondition(Keys.F11);
+
+        Vector2 _a = new(0, 0);
     }
 }
